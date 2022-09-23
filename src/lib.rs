@@ -1,13 +1,8 @@
-use std::char::REPLACEMENT_CHARACTER;
 use std::cmp::Ordering;
 use std::convert::AsRef;
-use std::fmt::{Debug, Display, Formatter, Write};
+use std::fmt::{Debug, Display, Formatter};
 use std::mem::transmute;
 use std::str::{from_utf8, Utf8Error};
-
-mod utf8chunks;
-
-pub use self::utf8chunks::{Utf8Chunk, Utf8ChunksIter};
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct BitStr {
@@ -131,11 +126,6 @@ impl BitStr {
     }
 
     #[inline]
-    pub fn utf8_chunks(&self) -> Utf8ChunksIter {
-        Utf8ChunksIter { bytes: &self.inner }
-    }
-
-    #[inline]
     pub fn to_str(&self) -> Result<&str, Utf8Error> {
         from_utf8(self.as_bytes())
     }
@@ -230,41 +220,16 @@ impl<'a> From<&'a [u8]> for &'a BitStr {
 
 impl Display for BitStr {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        for Utf8Chunk { valid, broken } in self.utf8_chunks() {
-            f.write_str(valid)?;
-            if !broken.is_empty() {
-                f.write_char(REPLACEMENT_CHARACTER)?;
-            }
-        }
+        let s = String::from_utf8_lossy(&self.inner.as_ref()).into_owned();
+        f.write_str(&s);
         Ok(())
     }
 }
 
-fn write_escaped_str(f: &mut std::fmt::Formatter, s: &str) -> std::fmt::Result {
-    let mut written = 0;
-    for (i, c) in s.char_indices() {
-        let e = c.escape_debug();
-        if e.len() != 1 {
-            f.write_str(&s[written..i])?;
-            for c in e {
-                f.write_char(c)?;
-            }
-            written = i + c.len_utf8();
-        }
-    }
-    f.write_str(&s[written..])
-}
-
 impl Debug for BitStr {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        f.write_char('"')?;
-        for Utf8Chunk { valid, broken } in self.utf8_chunks() {
-            write_escaped_str(f, valid)?;
-            for &b in broken {
-                write!(f, "\\x{:02x}", b)?;
-            }
-        }
-        f.write_char('"')
+        let s = String::from_utf8_lossy(&self.inner.as_ref()).into_owned();
+        f.write_str(&s)
     }
 }
 
@@ -311,7 +276,7 @@ fn test_display() {
 #[test]
 fn test_debug() {
     let rio = BitStr::from(&[82, 105, 111]);
-    assert_eq!(&format!("{:?}", rio), "\"Rio\"");
+    assert_eq!(&format!("{:?}", rio), "Rio");
 }
 
 #[test]
