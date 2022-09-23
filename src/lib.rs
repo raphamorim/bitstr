@@ -20,6 +20,7 @@ impl BitStr {
         unsafe { transmute::<&[u8], &Self>(bytes) }
     }
 
+    #[allow(clippy::should_implement_trait)]
     #[inline]
     pub fn from_str(bytes: &str) -> &Self {
         Self::from(bytes.as_bytes())
@@ -57,7 +58,7 @@ impl BitStr {
 
     #[inline]
     pub fn first(&self) -> Option<u8> {
-        self.inner.first().map(|&x| x)
+        self.inner.first().copied()
     }
 
     #[inline]
@@ -67,7 +68,7 @@ impl BitStr {
 
     #[inline]
     pub fn last(&self) -> Option<u8> {
-        self.inner.last().map(|&x| x)
+        self.inner.last().copied()
     }
 
     #[inline]
@@ -316,7 +317,7 @@ fn test_debug() {
 #[test]
 fn test_contains_u8() {
     let str_bitstr: &BitStr = BitStr::from(&[82, 105, 111]);
-    assert_eq!(str_bitstr.contains_u8(82), true);
+    assert!(str_bitstr.contains_u8(82), "{}", true);
 }
 
 #[test]
