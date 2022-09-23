@@ -1,6 +1,6 @@
 [package]
 name = "bitstr"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 description = "BitStr is a contiguous sequence of bits in memory"
 authors = ["Raphael Amorim <rapha850@gmail.com>"]
