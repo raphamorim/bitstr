@@ -220,7 +220,7 @@ impl<'a> From<&'a [u8]> for &'a BitStr {
 
 impl Display for BitStr {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        let s = String::from_utf8_lossy(&self.inner.as_ref()).into_owned();
+        let s = String::from_utf8_lossy(self.inner.as_ref()).into_owned();
         f.write_str(&s);
         Ok(())
     }
@@ -228,7 +228,7 @@ impl Display for BitStr {
 
 impl Debug for BitStr {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        let s = String::from_utf8_lossy(&self.inner.as_ref()).into_owned();
+        let s = String::from_utf8_lossy(self.inner.as_ref()).into_owned();
         f.write_str(&s)
     }
 }
